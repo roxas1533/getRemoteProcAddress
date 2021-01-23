@@ -1,8 +1,10 @@
 # getRemoteProcAddress
 別プロセスにロードされているdllがエクスポートした関数のアドレスを取得するためのライブラリです。  
-## 使い方  
-### rth::RemoteHandleクラス
-## RemoteHandle::RemoteHandle 
+# 使い方  
+RemodeHandle.hとRemodeHandle.cppをプロジェクトに入れてヘッダーをインクルードするだけです。
+# 仕様
+## class rth::RemoteHandle
+## rth::RemoteHandle::RemoteHandle 
 コンストラクタ
 <table>
   <tr>
@@ -30,7 +32,7 @@
   </tr>
 </table>  
 
-## RemoteHandle::getModuleList  
+## rth::RemoteHandle::getModuleList  
 プロセスにロードされているdllの一覧マップを返します。
 <table>
   <tr>
@@ -41,7 +43,7 @@
   </tr>
 </table>
 
-## RemoteHandle::getRemoteModule
+## rth::RemoteHandle::getRemoteModule
 プロセスにロードされているdllの一覧から指定されたモジュール名を検索してアドレスを取得します。
 <table>
   <tr>
@@ -55,7 +57,7 @@
   </tr>
 </table>  
 
-## RemoteHandle::getRemoteProcAdress  
+## rth::RemoteHandle::getRemoteProcAdress  
 指定したモジュール名とその関数名から関数のアドレスを取得します。
 <table>
   <tr>
