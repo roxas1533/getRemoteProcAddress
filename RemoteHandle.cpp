@@ -80,8 +80,13 @@ RemoteHandle::~RemoteHandle() {
 	::CloseHandle(hProcess);
 }
 
-std::unordered_map<std::string, HMODULE> const RemoteHandle::getModuleList() {
+std::unordered_map<std::string, HMODULE> const RemoteHandle::getNameToModuleList() {
 	return nameToModuleList;
+}
+
+std::unordered_map<HMODULE, std::string> const rth::RemoteHandle::getModuleToNameList()
+{
+	return moduleToNameList;
 }
 
 HMODULE rth::RemoteHandle::getRemoteModule(std::string mName)
