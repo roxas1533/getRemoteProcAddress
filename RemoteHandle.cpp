@@ -1,8 +1,4 @@
 #include "RemoteHandle.h"
-#include <assert.h>
-#include <psapi.h>
-#include <iostream>
-#pragma comment (lib, "psapi.lib")
 using namespace rth;
 UINT_PTR RemoteHandle::getFunctionList(HMODULE m, std::string name, std::string fName) {
 	UINT_PTR baseModule = (UINT64)m;

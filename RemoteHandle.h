@@ -4,6 +4,8 @@
 #include <unordered_map>
 #include <map>
 #include <string>
+#include <psapi.h>
+#pragma comment (lib, "psapi.lib")
 namespace rth {
 	class RemoteHandle {
 	private:
