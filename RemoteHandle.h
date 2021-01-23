@@ -18,8 +18,9 @@ namespace rth {
 		RemoteHandle(HANDLE hProcess);
 		~RemoteHandle();
 		std::unordered_map<std::string, HMODULE> const getModuleList();
+		HMODULE getRemoteModule(std::string mName);
 		UINT_PTR getRemoteProcAdress(std::string mName, std::string fName);
-		//HMODULE getRemoteProcAdress(HMODULE* module, std::string fName);
+		UINT_PTR getRemoteProcAdress(HMODULE module, std::string fName);
 		
 
 	};

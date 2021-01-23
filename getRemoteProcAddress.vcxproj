@@ -142,7 +142,7 @@
     <ClInclude Include="RemoteHandle.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="main.cpp" />
+    <ClCompile Include="example.cpp" />
     <ClCompile Include="RemoteHandle.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
