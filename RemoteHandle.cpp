@@ -87,7 +87,7 @@ std::unordered_map<std::string, HMODULE> const RemoteHandle::getNameToModuleList
 	return nameToModuleList;
 }
 
-HMODULE rth::RemoteHandle::getRemoteModule(std::string mName)
+HMODULE rth::RemoteHandle::getRemoteModuleHandle(std::string mName)
 {
 	try {
 		return nameToModuleList.at(mName);
