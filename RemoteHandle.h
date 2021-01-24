@@ -9,23 +9,22 @@
 namespace rth {
 	class RemoteHandle {
 	private:
+		bool isOpenProcess = false;
 		HANDLE hProcess;
 		std::unordered_map<std::string, HMODULE> nameToModuleList;
 		std::unordered_map<HMODULE,std::string> moduleToNameList;
-		std::unordered_map<std::string, std::map<std::string, UINT_PTR>> nameToFunctionList;
+		std::unordered_map<std::string, std::map<std::string, HMODULE>> nameToFunctionList;
 		std::unordered_map<HMODULE, std::map<std::string,HMODULE>> moduleToFunctionList;
-		UINT_PTR getFunctionList(HMODULE m,std::string name,std::string fName);
+		HMODULE getFunctionList(HMODULE m,std::string name,std::string fName);
 	public:
 		RemoteHandle(DWORD pid);
 		RemoteHandle(HANDLE hProcess);
 		~RemoteHandle();
 		std::unordered_map<std::string, HMODULE> const getNameToModuleList();
-		std::unordered_map<HMODULE, std::string> const getModuleToNameList();
 		HMODULE getRemoteModule(std::string mName);
-		UINT_PTR getRemoteProcAdress(std::string mName, std::string fName);
-		UINT_PTR getRemoteProcAdress(HMODULE module, std::string fName);
-		
-
+		HMODULE getRemoteProcAdress(std::string mName, std::string fName);
+		HMODULE getRemoteProcAdress(HMODULE module, std::string fName);
+		std::string getRemoteProcName(HMODULE module, HMODULE func);
 	};
 
 	class FAILED_FUNCTION :public std::runtime_error {

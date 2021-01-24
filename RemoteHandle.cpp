@@ -1,6 +1,6 @@
 #include "RemoteHandle.h"
 using namespace rth;
-UINT_PTR RemoteHandle::getFunctionList(HMODULE m, std::string name, std::string fName) {
+HMODULE RemoteHandle::getFunctionList(HMODULE m, std::string name, std::string fName) {
 	UINT_PTR baseModule = (UINT64)m;
 	_IMAGE_DOS_HEADER dosHeader;
 	IMAGE_NT_HEADERS ntHeader;
@@ -27,7 +27,7 @@ UINT_PTR RemoteHandle::getFunctionList(HMODULE m, std::string name, std::string 
 	char TempChar;
 	BOOL DONE = FALSE;
 	std::string TempFunctionName;
-	UINT_PTR find = 0;
+	HMODULE find = 0;
 	for (UINT_PTR i = 0; i < exportDirectory.NumberOfNames; i++) {
 		DWORD arrays = 0;
 		WORD ord = 0;
@@ -41,7 +41,7 @@ UINT_PTR RemoteHandle::getFunctionList(HMODULE m, std::string name, std::string 
 		ReadProcessMemory(hProcess, (LPCVOID)(ExportFunctionTableVA + i * sizeof(DWORD)), &arrays, sizeof(arrays), 0);
 		ExportFunctionTable[i] = arrays;
 	}
-	std::map<std::string, UINT_PTR> funcList;
+	std::map<std::string, HMODULE> funcList;
 	for (DWORD i = 0; i < exportDirectory.NumberOfNames; i++) {
 		std::string TempFunctionName;
 		TempFunctionName.clear();
@@ -53,14 +53,16 @@ UINT_PTR RemoteHandle::getFunctionList(HMODULE m, std::string name, std::string 
 			else
 				TempFunctionName.push_back(TempChar);
 		}
-		funcList.insert(std::make_pair(TempFunctionName, (baseModule + ExportFunctionTable[ExportOrdinalsTable[i]])));
+		funcList.insert(std::make_pair(TempFunctionName, (HMODULE)(baseModule + ExportFunctionTable[ExportOrdinalsTable[i]])));
 		if (TempFunctionName == fName)
-			find = (baseModule + ExportFunctionTable[ExportOrdinalsTable[i]]);
+			find = HMODULE(baseModule + ExportFunctionTable[ExportOrdinalsTable[i]]);
 	}
 	nameToFunctionList.insert(std::make_pair(name, funcList));
+	moduleToFunctionList.insert(std::make_pair(m, funcList));
 	return find;
 }
 RemoteHandle::RemoteHandle(DWORD pid) :RemoteHandle(OpenProcess(PROCESS_ALL_ACCESS, TRUE, pid)) {
+	isOpenProcess = true;
 }
 RemoteHandle::RemoteHandle(HANDLE hProcess) {
 	this->hProcess = hProcess;
@@ -73,20 +75,16 @@ RemoteHandle::RemoteHandle(HANDLE hProcess) {
 	for (DWORD i = 0; i < dwSize / sizeof(DWORD); i++) {
 		GetModuleBaseNameA(hProcess, hmod[i], name, _MAX_PATH);
 		nameToModuleList.insert(std::make_pair(std::string(name), hmod[i]));
-		moduleToNameList.insert(std::make_pair(hmod[i],std::string(name)));
+		moduleToNameList.insert(std::make_pair(hmod[i], std::string(name)));
 	}
 }
 RemoteHandle::~RemoteHandle() {
-	::CloseHandle(hProcess);
+	if (isOpenProcess)
+		::CloseHandle(hProcess);
 }
 
 std::unordered_map<std::string, HMODULE> const RemoteHandle::getNameToModuleList() {
 	return nameToModuleList;
-}
-
-std::unordered_map<HMODULE, std::string> const rth::RemoteHandle::getModuleToNameList()
-{
-	return moduleToNameList;
 }
 
 HMODULE rth::RemoteHandle::getRemoteModule(std::string mName)
@@ -99,21 +97,32 @@ HMODULE rth::RemoteHandle::getRemoteModule(std::string mName)
 	}
 }
 
-UINT_PTR RemoteHandle::getRemoteProcAdress(std::string mName, std::string fName)
+HMODULE RemoteHandle::getRemoteProcAdress(std::string mName, std::string fName)
 {
 	if (nameToFunctionList.count(mName)) {
 		try {
-			UINT_PTR find = nameToFunctionList.at(mName).at(fName);
+			HMODULE find = nameToFunctionList.at(mName).at(fName);
 			return find;
 		}
 		catch (std::out_of_range e) {
 			return 0;
 		}
-	}else
+	}
+	else
 		return getFunctionList(nameToModuleList.at(mName), mName, fName);
 }
 
-UINT_PTR rth::RemoteHandle::getRemoteProcAdress(HMODULE module, std::string fName)
+HMODULE rth::RemoteHandle::getRemoteProcAdress(HMODULE module, std::string fName)
 {
 	return getRemoteProcAdress(moduleToNameList.at(module), fName);
+}
+
+std::string rth::RemoteHandle::getRemoteProcName(HMODULE module, HMODULE func)
+{
+	std::map<std::string, HMODULE>& temp = moduleToFunctionList.at(module);
+	for (auto m : temp) {
+		if (m.second == func)
+			return m.first;
+	}
+	return "";
 }
